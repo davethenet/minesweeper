@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Pacman</title>
+    <link rel="stylesheet" href="css/app.css">
+</head>
+
+<body onload="onInit()" onclick="placeMines(board)">
+    <div class="menu">
+        <h2 class="score">Mines: <span>0</span></h2>
+        <button class="reset" onclick="onInit()">😊</button>
+        <h2 class="timer"><span>00:00</span></h2>
+    </div>
+    <div class="board-container"></div>
+
+    <table class="board-container">
+        <tbody></tbody>
+    </table>
+
+
+    <script src="js/utils.js"></script>
+    <script src="js/main.js"></script>
+
+</body>
+
+<footer>David Nelsen</footer>
+
+</html>

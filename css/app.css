@@ -1,0 +1,51 @@
+body {
+    background-color: aliceblue;
+    text-align: center;
+    color: black;
+}
+
+
+table {
+    margin: 50px auto;
+    background-color: bisque;
+    border: 1px solid black;
+}
+
+td {
+    border: 1px solid black;
+    width: 20px;
+    height: 25px;
+}
+
+.covered span {
+    display: none;
+    
+}
+
+.covered {
+    background-color: gray;
+}
+
+.menu{
+    margin-bottom: 20px;
+}
+.menu h2{
+    background-color: aliceblue;
+    display: inline;
+    margin-right: 20px;
+}
+
+.menu button{
+    background-color: aliceblue;
+    display: inline;
+    margin-right: 20px;
+}
+
+button.reset {
+    background-color: aliceblue;
+}
+
+
+footer {
+    margin-top: 100px;
+}
