@@ -22,14 +22,20 @@ var gCell = {
 
 }
 
+// Timer:
+var gInterval
+var gStartTime
+
+
 
 //Called when page loads
 function onInit() {
+    resetTimer()
     gBoard = buildBoard()
     setMinesNegsCount(gBoard)
 
     renderBoard(gBoard)
-   
+
 }
 
 
@@ -52,12 +58,31 @@ function buildBoard() {
         }
     }
 
-    //STATIC MINES:
     placeMines(board)
 
+    return board
+}
+
+
+function placeMines(board) {
+
+    //STATIC MINES:
+    board[2][1] = {
+        minesAroundCount: null,
+        isCovered: true,
+        isMine: true,
+        isMarked: false,
+    }
+
+
+    board[2][2] = {
+        minesAroundCount: null,
+        isCovered: true,
+        isMine: true,
+        isMarked: false,
+    }
 
     //RANDOM MINES:
-
     // board[getRandomInt(0, 4)][getRandomInt(0, 4)] = {
     //     minesAroundCount: null,
     //     isCovered: true,
@@ -74,25 +99,7 @@ function buildBoard() {
     //     isMine: true,
     //     isMarked: false,
     // }
-    return board
-}
 
-
-function placeMines(board){
-    board[2][1] = {
-        minesAroundCount: null,
-        isCovered: true,
-        isMine: true,
-        isMarked: false,
-    }
-
-
-    board[2][2] = {
-        minesAroundCount: null,
-        isCovered: true,
-        isMine: true,
-        isMarked: false,
-    }
 }
 
 // Count mines around each cell
@@ -100,9 +107,9 @@ function placeMines(board){
 // minesAroundCount
 
 function setMinesNegsCount(board) {
-    for (var i = 0 ; i < board.length ; i++){
-        for (var j = 0 ; j < board[0].length ; j++){
-            board[i][j].minesAroundCount = countNeighbors(i,j,board)
+    for (var i = 0; i < board.length; i++) {
+        for (var j = 0; j < board[0].length; j++) {
+            board[i][j].minesAroundCount = countNeighbors(i, j, board)
         }
     }
 }
@@ -110,46 +117,63 @@ function setMinesNegsCount(board) {
 // Render the board as a <table> to the page
 function renderBoard(board) {
     var strHTML = ''
-	for (var i = 0; i < board.length; i++) {
-		strHTML += '<tr>\n'
-		for (var j = 0; j < board[0].length; j++) {
-			const currCell = board[i][j]
+    for (var i = 0; i < board.length; i++) {
+        strHTML += '<tr>\n'
+        for (var j = 0; j < board[0].length; j++) {
+            const currCell = board[i][j]
 
-			var cellClass = getClassName({ i: i, j: j })
+            var cellClass = getClassName({ i: i, j: j })
 
-			if (currCell.isCovered === true) cellClass += ' covered'
-			else if (currCell.isMarked === true) cellClass += ' marked'
+            if (currCell.isCovered === true) cellClass += ' covered'
+            else if (currCell.isMarked === true) cellClass += ' marked'
 
-			// strHTML += `\t<td class="cell ' ${cellClass} onclick="onCellClicked($)" >\n`
+            // strHTML += `\t<td class="cell ' ${cellClass} onclick="onCellClicked($)" >\n`
             // strHTML += `<td class="cell ${cellClass}" onclick="onCellClicked(${elCell},${i},${j})>lala</td>`
-            strHTML += '\t<td class="cell ' + cellClass + '"  onclick="onCellClicked(' + 'this' + ',' + i + ',' + j + ')" >\n'
+            strHTML += '\t<td class="cell ' + cellClass + '"  onclick="onCellClicked(' + 'event' + ',' + i + ',' + j + ')" >\n'
 
 
 
-			if (currCell.isMine === false) {
-				strHTML += '<span>' + currCell.minesAroundCount + '</span>'
-			} else if (currCell.isMine === true) {
-				strHTML += '<span>' + MINE + '</span>'
-			} else if (currCell.minesAroundCount) {
-				strHTML += '<span>' + currCell.minesAroundCount + '</span>'
-			}
+            if (currCell.isMine === false) {
+                var cellContent = currCell.minesAroundCount ? currCell.minesAroundCount : EMPTY
+                strHTML += '<span>' + cellContent + '</span>'
+            } else if (currCell.isMine === true) {
+                strHTML += '<span>' + MINE + '</span>'
+            }
+            // else if (currCell.minesAroundCount) {
+            //     strHTML += '<span>' + currCell.minesAroundCount + '</span>'
+            // }
 
-			strHTML += '\t</td>\n'
-		}
-		strHTML += '</tr>\n'
-	}
-	// console.log('strHTML is:')
-	// console.log(strHTML)
-	const elBoard = document.querySelector('.board-container tbody')
-	elBoard.innerHTML = strHTML
+
+            strHTML += '\t</td>\n'
+        }
+        strHTML += '</tr>\n'
+    }
+    // console.log('strHTML is:')
+    // console.log(strHTML)
+    const elBoard = document.querySelector('.board-container tbody')
+    elBoard.innerHTML = strHTML
 }
 
 //Called when a cell is clicked
 
-function onCellClicked(elCell, i, j) {
-    console.log(elCell)
-    document.querySelector(`.cell-${i}-${j}`).classList.remove('covered')
+function onCellClicked(ev, i, j) {
+    console.log(ev)
+    if (!gGame.isOn) {
+        gGame.isOn = true
+        startTimer()
+        document.querySelector(`.cell-${i}-${j}`).classList.remove('covered')
+        gBoard[i][j].isCovered = false
+    }
 
+    if (gGame.isOn) {
+        document.querySelector(`.cell-${i}-${j}`).classList.remove('covered')
+        gBoard[i][j].isCovered = false
+    }
+
+    if (ev.button === 2) {
+        // onCellMarked()
+        console.log('right')
+    }
 
 }
 
@@ -174,6 +198,7 @@ function expandUncoveredBoard(board, elCell, i, j) {
 
 // Returns the class name for a specific cell
 function getClassName(location) {
-	const cellClass = 'cell-' + location.i + '-' + location.j
-	return cellClass
+    const cellClass = 'cell-' + location.i + '-' + location.j
+    return cellClass
 }
+
