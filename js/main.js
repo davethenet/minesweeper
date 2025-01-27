@@ -2,12 +2,14 @@
 
 const EMPTY = ' '
 const MINE = '💣'
+const MARKED = '🚩'
 
 var gBoard
 
 var gLevel = {
     SIZE: 4,
     MINES: 2,
+    LIVES: 3,
 }
 
 var gGame = {
@@ -15,6 +17,10 @@ var gGame = {
     coveredCount: 0,
     MarkedCount: 0,
     secsPassed: 0,
+}
+
+var gPlayer = {
+    lives: 0,
 }
 
 
@@ -25,16 +31,27 @@ var gCell = {
 // Timer:
 var gInterval
 var gStartTime
+var gPausedTime
 
 
 
 //Called when page loads
 function onInit() {
     resetTimer()
+    gGame.coveredCount = gLevel.SIZE ** 2
+    gGame.MarkedCount = 0
+    gGame.isOn = false
     gBoard = buildBoard()
     setMinesNegsCount(gBoard)
 
     renderBoard(gBoard)
+
+    gPlayer.lives = gLevel.LIVES
+    updateLives(gPlayer.lives)
+    var elMines = document.querySelector('.mines span')
+    elMines.innerText = gLevel.MINES
+
+
 
 }
 
@@ -157,33 +174,76 @@ function renderBoard(board) {
 //Called when a cell is clicked
 
 function onCellClicked(ev, i, j) {
+
+    if (gPlayer.lives === 0) return
+
     console.log(ev)
     if (!gGame.isOn) {
         gGame.isOn = true
         startTimer()
         document.querySelector(`.cell-${i}-${j}`).classList.remove('covered')
         gBoard[i][j].isCovered = false
+        gGame.coveredCount--
     }
 
     if (gGame.isOn) {
         document.querySelector(`.cell-${i}-${j}`).classList.remove('covered')
         gBoard[i][j].isCovered = false
+        gGame.coveredCount--
+    }
+
+    if (isMine(gBoard, i, j)) {
+        updateLives(--gPlayer.lives)
+        setTimeout(() => {
+            document.querySelector(`.cell-${i}-${j}`).classList.add('covered')
+        }, 1000);
+
     }
 
     if (ev.button === 2) {
-        // onCellMarked()
-        console.log('right')
+        onCellMarked(elCell)
+        console.log('right click')
     }
+
+    if (checkGameOver()) {
+        var elLives = document.querySelector('.lives span')
+        elLives.innerHTML = 'Game Over!'
+        resetTimer()
+        var elTimer = document.querySelector('.timer span')
+        elTimer.innerText = gPausedTime
+    }
+
 
 }
 
+document.addEventListener('contextmenu', function (event) {
+    // Prevent the default context menu from appearing
+    event.preventDefault();
+
+    // Your code to handle the right-click event goes here
+    console.log('right')
+    // onCellMarked(elCell)
+    var elMines = document.querySelector('.mines span')
+    if (elMines.innerText <= 0) return
+    elMines.innerText--
+    gGame.MarkedCount++
+    gBoard[i][j].isMarked = true
+    var elCell = document.querySelector(`.cell-${i}-${j}`)
+    elCell.innerText = MARKED
+});
+
+
 // Called when a cell is right-clicked See how you can hide the context menu on right click
 function onCellMarked(elCell) {
-
+    var elMines = document.querySelector('.mines span')
+    if (elMines.innerText <= 0) return
+    elMines.innerText--
+    gGame.MarkedCount++
 }
 
 // The game ends when all mines are marked, and all the other cells are uncovered
 function checkGameOver() {
+    return !gPlayer.lives
 
 }
 
@@ -202,3 +262,15 @@ function getClassName(location) {
     return cellClass
 }
 
+
+function isMine(board, i, j) {
+    return board[i][j].isMine
+}
+
+function updateLives(lives) {
+    gPlayer.lives = lives
+    var elLives = document.querySelector('.lives span')
+    if (checkGameOver) {
+        elLives.innerHTML = '<span>' + gPlayer.lives + '</span>'
+    }
+}

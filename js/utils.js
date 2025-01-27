@@ -1,8 +1,5 @@
 'use strict'
 
-document.addEventListener('contextmenu', (event) => {
-  event.preventDefault();
-});
 
 
 // Getting a random integer between two values
@@ -84,12 +81,15 @@ function updateTime() {
 
   var elTime = document.querySelector('.timer span')
   elTime.innerHTML = `${sec}`
+  gGame.secsPassed = sec
 }
 
 function resetTimer() {
+  gPausedTime = gGame.secsPassed
   clearInterval(gInterval)
   var elTimer = document.querySelector('.timer span')
   elTimer.innerHTML = '000'
   gStartTime = 0
   gInterval = null
+  gGame.secsPassed = 0
 }
