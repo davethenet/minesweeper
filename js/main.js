@@ -3,6 +3,9 @@
 const EMPTY = ' '
 const MINE = '💣'
 const MARKED = '🚩'
+const LOSE = '🤯'
+const WIN = '😎'
+const START = '😊'
 
 var gBoard
 
@@ -38,6 +41,8 @@ var gPausedTime
 //Called when page loads
 function onInit() {
     resetTimer()
+    var elEmoji = document.querySelector('button.reset')
+    elEmoji.innerText = START
     gGame.coveredCount = gLevel.SIZE ** 2
     gGame.MarkedCount = 0
     gGame.isOn = false
@@ -48,6 +53,7 @@ function onInit() {
 
     gPlayer.lives = gLevel.LIVES
     updateLives(gPlayer.lives)
+
     var elMines = document.querySelector('.mines span')
     elMines.innerText = gLevel.MINES
 
@@ -92,7 +98,7 @@ function placeMines(board) {
     }
 
 
-    board[2][2] = {
+    board[3][2] = {
         minesAroundCount: null,
         isCovered: true,
         isMine: true,
@@ -183,13 +189,29 @@ function onCellClicked(ev, i, j) {
         startTimer()
         document.querySelector(`.cell-${i}-${j}`).classList.remove('covered')
         gBoard[i][j].isCovered = false
-        gGame.coveredCount--
+        if (!isMine(gBoard, i, j)) {
+            gGame.coveredCount--
+        }
+
+
+        expandUncoveredBoard(gBoard, null, i, j)
     }
 
-    if (gGame.isOn) {
+    else if (gGame.isOn) {
+        if (gBoard[i][j].isCovered === false) return
         document.querySelector(`.cell-${i}-${j}`).classList.remove('covered')
         gBoard[i][j].isCovered = false
-        gGame.coveredCount--
+        if (!isMine(gBoard, i, j)) {
+            gGame.coveredCount--
+        }
+        expandUncoveredBoard(gBoard, null, i, j)
+        if (checkWin()) {
+            resetTimer()
+            var elTimer = document.querySelector('.timer span')
+            elTimer.innerText = gPausedTime
+            var elEmoji = document.querySelector('button.reset')
+            elEmoji.innerText = WIN
+        }
     }
 
     if (isMine(gBoard, i, j)) {
@@ -207,10 +229,13 @@ function onCellClicked(ev, i, j) {
 
     if (checkGameOver()) {
         var elLives = document.querySelector('.lives span')
-        elLives.innerHTML = 'Game Over!'
+        // elLives.innerHTML = 'Game Over!'
         resetTimer()
         var elTimer = document.querySelector('.timer span')
         elTimer.innerText = gPausedTime
+        var elEmoji = document.querySelector('button.reset')
+        elEmoji.innerText = LOSE
+
     }
 
 
@@ -247,12 +272,36 @@ function checkGameOver() {
 
 }
 
+function checkWin() {
+    return (gGame.coveredCount === gLevel.MINES)
+}
+
 
 // When the user clicks a cell with no mines around, uncover not only that cell, but also its neighbors.
 // NOTE: start with a basic implementation that only uncovers the non-mine 1st degree neighbors
 
-function expandUncoveredBoard(board, elCell, i, j) {
+///NEED TO FIX coveredCount
 
+function expandUncoveredBoard(mat, elCell, cellI, cellJ) {
+    for (var i = cellI - 1; i <= cellI + 1; i++) {
+        if (i < 0 || i >= mat.length) continue
+        for (var j = cellJ - 1; j <= cellJ + 1; j++) {
+            if (i === cellI && j === cellJ) continue
+            if (j < 0 || j >= mat[i].length) continue
+            if (mat[i][j].minesAroundCount === 0) {
+                if (mat[i][j].isCovered === true) {
+                    gGame.coveredCount--
+                }
+                mat[i][j].isCovered = false
+                document.querySelector(`.cell-${i}-${j}`).classList.remove('covered')
+                // console.log(gGame.coveredCount)
+                if (mat[i][j].isCovered === true) {
+                    gGame.coveredCount--
+                } else return
+                console.log(mat[i][j])
+            }
+        }
+    }
 }
 
 
@@ -270,7 +319,9 @@ function isMine(board, i, j) {
 function updateLives(lives) {
     gPlayer.lives = lives
     var elLives = document.querySelector('.lives span')
-    if (checkGameOver) {
+    elLives.innerText = gPlayer.lives
+    if (checkGameOver()) {
         elLives.innerHTML = '<span>' + gPlayer.lives + '</span>'
     }
 }
+
