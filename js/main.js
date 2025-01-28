@@ -203,6 +203,8 @@ function renderBoard(board) {
 function onCellClicked(ev, i, j) {
     if (gGame.isOn === false) return
     if (gPlayer.lives === 0) return
+    if (gBoard[i][j].isMarked) return
+
 
     // console.log(ev)
     if (gGame.MarkedCount === 0) {
@@ -264,7 +266,14 @@ function onCellClicked(ev, i, j) {
         elTimer.innerText = gPausedTime
         var elEmoji = document.querySelector('button.reset')
         elEmoji.innerText = LOSE
-        document.querySelector(`.cell-${i}-${j}`).innerText = '💥'
+        for (var i = 0 ; i<gBoard.length ; i++){
+            for (var j= 0 ;j<gBoard[0].length ; j++){
+                if (gBoard[i][j].isMine) {
+                    document.querySelector(`.cell-${i}-${j}`).innerText = '💥'
+                    document.querySelector(`.cell-${i}-${j}`).classList.remove('covered')
+                }
+            }
+        }
 
 
 
@@ -280,10 +289,17 @@ document.addEventListener('contextmenu', function (event) {
     // Your code to handle the right-click event goes here
     console.log(event.target.classList[1])
     var elCell = event.target.classList[1].split('-')
+    var prevElCell = gBoard[elCell[1]][elCell[2]].isMine
+    console.log(prevElCell)
     if (gBoard[elCell[1]][elCell[2]].isMarked) {
         gBoard[elCell[1]][elCell[2]].isMarked = false
         var elCellContent = document.querySelector(`.cell-${elCell[1]}-${elCell[2]}`)
-        elCellContent.innerText = EMPTY
+        if (prevElCell) {
+            elCellContent.innerText = MINE
+        }
+        else {
+            elCellContent.innerText = EMPTY
+        }
         var elMines = document.querySelector('.mines span')
         console.log(elMines.innerText)
         elMines.innerText++
