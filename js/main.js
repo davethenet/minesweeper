@@ -10,8 +10,8 @@ const START = '😊'
 var gBoard
 
 var gLevel = {
-    SIZE: 4,
-    MINES: 2,
+    SIZE: 0,
+    MINES: 0,
     LIVES: 3,
 }
 
@@ -45,8 +45,8 @@ function onInit() {
     elEmoji.innerText = START
     gGame.coveredCount = gLevel.SIZE ** 2
     gGame.MarkedCount = 0
-    gGame.isOn = false
-    gBoard = buildBoard()
+    gGame.isOn = true
+    gBoard = buildBoard(4)
     setMinesNegsCount(gBoard)
 
     renderBoard(gBoard)
@@ -67,9 +67,26 @@ function onInit() {
 // setMinesNegsCount() 
 // Return the created board
 
-function buildBoard() {
-    const SIZE = 4
-    var board = createMat(SIZE, SIZE)
+function buildBoard(size) {
+    switch (size) {
+        case 4:
+            gLevel.SIZE = size
+            gLevel.MINES = 2
+            break;
+        case 8:
+            gLevel.SIZE = size
+            gLevel.MINES = 14
+            break;
+        case 12:
+            gLevel.SIZE = size
+            gLevel.MINES = 32
+            break;
+        default:
+            break;
+    }
+
+
+    var board = createMat(gLevel.SIZE, gLevel.SIZE)
     for (var i = 0; i < board.length; i++) {
         for (var j = 0; j < board[i].length; j++) {
             board[i][j] = {
@@ -89,7 +106,7 @@ function buildBoard() {
 
 function placeMines(board) {
 
-    //STATIC MINES:
+    // STATIC MINES:
     board[2][1] = {
         minesAroundCount: null,
         isCovered: true,
@@ -105,24 +122,28 @@ function placeMines(board) {
         isMarked: false,
     }
 
-    //RANDOM MINES:
-    // board[getRandomInt(0, 4)][getRandomInt(0, 4)] = {
-    //     minesAroundCount: null,
-    //     isCovered: true,
-    //     isMine: true,
-    //     isMarked: false,
-    // }
+    // RANDOM MINES:
+    
 
-    // var emptyCells = getEmptyCells(board) 
-    // var randomCell = emptyCells[getRandomInt(0, SIZE)]
+//     for (var i = 0 ; i < gLevel.SIZE ; i++) {
+    
+//     board[getRandomInt(0, gLevel.SIZE)][getRandomInt(0, gLevel.SIZE)] = {
+//         minesAroundCount: null,
+//         isCovered: true,
+//         isMine: true,
+//         isMarked: false,
+//     }
+//     // var emptyCells = getEmptyCells(board) 
+//     // var randomCell = emptyCells[getRandomInt(0, gLevel.SIZE)]
 
-    // board[randomCell.i][randomCell.j] = {
-    //     minesAroundCount: null,
-    //     isCovered: true,
-    //     isMine: true,
-    //     isMarked: false,
-    // }
+//     // board[randomCell.i][randomCell.j] = {
+//     //     minesAroundCount: null,
+//     //     isCovered: true,
+//     //     isMine: true,
+//     //     isMarked: false,
+//     // }
 
+// }
 }
 
 // Count mines around each cell
@@ -180,11 +201,12 @@ function renderBoard(board) {
 //Called when a cell is clicked
 
 function onCellClicked(ev, i, j) {
-
+    if (gGame.isOn === false) return
     if (gPlayer.lives === 0) return
 
-    console.log(ev)
-    if (!gGame.isOn) {
+    // console.log(ev)
+    if (gGame.MarkedCount === 0) {
+        gGame.MarkedCount++
         gGame.isOn = true
         startTimer()
         document.querySelector(`.cell-${i}-${j}`).classList.remove('covered')
@@ -205,27 +227,34 @@ function onCellClicked(ev, i, j) {
             gGame.coveredCount--
         }
         expandUncoveredBoard(gBoard, null, i, j)
+
         if (checkWin()) {
+            gGame.isOn = false
             resetTimer()
             var elTimer = document.querySelector('.timer span')
             elTimer.innerText = gPausedTime
             var elEmoji = document.querySelector('button.reset')
             elEmoji.innerText = WIN
+
         }
     }
 
     if (isMine(gBoard, i, j)) {
         updateLives(--gPlayer.lives)
-        setTimeout(() => {
-            document.querySelector(`.cell-${i}-${j}`).classList.add('covered')
-        }, 1000);
+        if (gPlayer.lives !== 0) {
+            setTimeout(() => {
+                document.querySelector(`.cell-${i}-${j}`).classList.add('covered')
+            }, 1000);
+        }
 
     }
 
-    if (ev.button === 2) {
-        onCellMarked(elCell)
-        console.log('right click')
-    }
+    // console.log(ev.button)
+
+    // if (ev.button === 2) {
+    //     onCellMarked(elCell)
+    //     console.log('right click')
+    // }
 
     if (checkGameOver()) {
         var elLives = document.querySelector('.lives span')
@@ -235,6 +264,9 @@ function onCellClicked(ev, i, j) {
         elTimer.innerText = gPausedTime
         var elEmoji = document.querySelector('button.reset')
         elEmoji.innerText = LOSE
+        document.querySelector(`.cell-${i}-${j}`).innerText = '💥'
+
+
 
     }
 
@@ -246,15 +278,20 @@ document.addEventListener('contextmenu', function (event) {
     event.preventDefault();
 
     // Your code to handle the right-click event goes here
-    console.log('right')
+    console.log(event.target.classList[1])
+    var elCell = event.target.classList[1].split('-')
+    console.log(elCell)
+    console.log(elCell[1])
+    console.log(elCell[2])
     // onCellMarked(elCell)
     var elMines = document.querySelector('.mines span')
     if (elMines.innerText <= 0) return
     elMines.innerText--
     gGame.MarkedCount++
-    gBoard[i][j].isMarked = true
-    var elCell = document.querySelector(`.cell-${i}-${j}`)
-    elCell.innerText = MARKED
+    gBoard[elCell[1]][elCell[2]].isMarked = true
+    var elCellContent = document.querySelector(`.cell-${elCell[1]}-${elCell[2]}`)
+    console.log(elCellContent)
+    elCellContent.innerText = MARKED
 });
 
 
@@ -325,3 +362,7 @@ function updateLives(lives) {
     }
 }
 
+
+
+//TODO
+//SUPPORT RIGHT CLICK MARK AND UNMARK
