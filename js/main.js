@@ -123,27 +123,27 @@ function placeMines(board) {
     }
 
     // RANDOM MINES:
-    
 
-//     for (var i = 0 ; i < gLevel.SIZE ; i++) {
-    
-//     board[getRandomInt(0, gLevel.SIZE)][getRandomInt(0, gLevel.SIZE)] = {
-//         minesAroundCount: null,
-//         isCovered: true,
-//         isMine: true,
-//         isMarked: false,
-//     }
-//     // var emptyCells = getEmptyCells(board) 
-//     // var randomCell = emptyCells[getRandomInt(0, gLevel.SIZE)]
 
-//     // board[randomCell.i][randomCell.j] = {
-//     //     minesAroundCount: null,
-//     //     isCovered: true,
-//     //     isMine: true,
-//     //     isMarked: false,
-//     // }
+    //     for (var i = 0 ; i < gLevel.SIZE ; i++) {
 
-// }
+    //     board[getRandomInt(0, gLevel.SIZE)][getRandomInt(0, gLevel.SIZE)] = {
+    //         minesAroundCount: null,
+    //         isCovered: true,
+    //         isMine: true,
+    //         isMarked: false,
+    //     }
+    //     // var emptyCells = getEmptyCells(board) 
+    //     // var randomCell = emptyCells[getRandomInt(0, gLevel.SIZE)]
+
+    //     // board[randomCell.i][randomCell.j] = {
+    //     //     minesAroundCount: null,
+    //     //     isCovered: true,
+    //     //     isMine: true,
+    //     //     isMarked: false,
+    //     // }
+
+    // }
 }
 
 // Count mines around each cell
@@ -280,28 +280,36 @@ document.addEventListener('contextmenu', function (event) {
     // Your code to handle the right-click event goes here
     console.log(event.target.classList[1])
     var elCell = event.target.classList[1].split('-')
-    console.log(elCell)
-    console.log(elCell[1])
-    console.log(elCell[2])
+    if (gBoard[elCell[1]][elCell[2]].isMarked) {
+        gBoard[elCell[1]][elCell[2]].isMarked = false
+        var elCellContent = document.querySelector(`.cell-${elCell[1]}-${elCell[2]}`)
+        elCellContent.innerText = EMPTY
+        var elMines = document.querySelector('.mines span')
+        console.log(elMines.innerText)
+        elMines.innerText++
+    }
     // onCellMarked(elCell)
-    var elMines = document.querySelector('.mines span')
-    if (elMines.innerText <= 0) return
-    elMines.innerText--
-    gGame.MarkedCount++
-    gBoard[elCell[1]][elCell[2]].isMarked = true
-    var elCellContent = document.querySelector(`.cell-${elCell[1]}-${elCell[2]}`)
-    console.log(elCellContent)
-    elCellContent.innerText = MARKED
+    else {
+        var elMines = document.querySelector('.mines span')
+        if (elMines.innerText <= 0) return
+        elMines.innerText--
+        gGame.MarkedCount++
+        gBoard[elCell[1]][elCell[2]].isMarked = true
+        var elCellContent = document.querySelector(`.cell-${elCell[1]}-${elCell[2]}`)
+        console.log(elCellContent)
+        elCellContent.innerText = MARKED
+    }
 });
 
 
+
 // Called when a cell is right-clicked See how you can hide the context menu on right click
-function onCellMarked(elCell) {
-    var elMines = document.querySelector('.mines span')
-    if (elMines.innerText <= 0) return
-    elMines.innerText--
-    gGame.MarkedCount++
-}
+// function onCellMarked(elCell) {
+//     var elMines = document.querySelector('.mines span')
+//     if (elMines.innerText <= 0) return
+//     elMines.innerText--
+//     gGame.MarkedCount++
+// }
 
 // The game ends when all mines are marked, and all the other cells are uncovered
 function checkGameOver() {
