@@ -11,7 +11,7 @@ var gBoard
 
 var gLevel = {
     SIZE: 0,
-    MINES: 0,
+    MINES: 2,
     LIVES: 3,
 }
 
@@ -26,7 +26,7 @@ var gPlayer = {
     lives: 0,
 }
 
-
+var gCounter
 var gCell = {
 
 }
@@ -40,6 +40,7 @@ var gPausedTime
 
 //Called when page loads
 function onInit() {
+    gCounter = 0
     resetTimer()
     var elEmoji = document.querySelector('button.reset')
     elEmoji.innerText = START
@@ -205,6 +206,9 @@ function onCellClicked(ev, i, j) {
     if (gPlayer.lives === 0) return
     if (gBoard[i][j].isMarked) return
 
+    if (checkWin(gBoard)) {
+        renderWin(gBoard)
+    }
 
     // console.log(ev)
     if (gGame.MarkedCount === 0) {
@@ -230,15 +234,7 @@ function onCellClicked(ev, i, j) {
         }
         expandUncoveredBoard(gBoard, null, i, j)
 
-        if (checkWin()) {
-            gGame.isOn = false
-            resetTimer()
-            var elTimer = document.querySelector('.timer span')
-            elTimer.innerText = gPausedTime
-            var elEmoji = document.querySelector('button.reset')
-            elEmoji.innerText = WIN
 
-        }
     }
 
     if (isMine(gBoard, i, j)) {
@@ -266,8 +262,8 @@ function onCellClicked(ev, i, j) {
         elTimer.innerText = gPausedTime
         var elEmoji = document.querySelector('button.reset')
         elEmoji.innerText = LOSE
-        for (var i = 0 ; i<gBoard.length ; i++){
-            for (var j= 0 ;j<gBoard[0].length ; j++){
+        for (var i = 0; i < gBoard.length; i++) {
+            for (var j = 0; j < gBoard[0].length; j++) {
                 if (gBoard[i][j].isMine) {
                     document.querySelector(`.cell-${i}-${j}`).innerText = '💥'
                     document.querySelector(`.cell-${i}-${j}`).classList.remove('covered')
@@ -287,12 +283,17 @@ document.addEventListener('contextmenu', function (event) {
     event.preventDefault();
 
     // Your code to handle the right-click event goes here
-    console.log(event.target.classList[1])
+    // console.log(event.target.classList[1])
     var elCell = event.target.classList[1].split('-')
     var prevElCell = gBoard[elCell[1]][elCell[2]].isMine
-    console.log(prevElCell)
+
+    // console.log(prevElCell)
     if (gBoard[elCell[1]][elCell[2]].isMarked) {
         gBoard[elCell[1]][elCell[2]].isMarked = false
+        gGame.MarkedCount--
+        if (gBoard[elCell[1]][elCell[2]].isMine) {
+            gCounter--
+        }
         var elCellContent = document.querySelector(`.cell-${elCell[1]}-${elCell[2]}`)
         if (prevElCell) {
             elCellContent.innerText = MINE
@@ -301,7 +302,7 @@ document.addEventListener('contextmenu', function (event) {
             elCellContent.innerText = EMPTY
         }
         var elMines = document.querySelector('.mines span')
-        console.log(elMines.innerText)
+        // console.log(elMines.innerText)
         elMines.innerText++
     }
     // onCellMarked(elCell)
@@ -311,9 +312,14 @@ document.addEventListener('contextmenu', function (event) {
         elMines.innerText--
         gGame.MarkedCount++
         gBoard[elCell[1]][elCell[2]].isMarked = true
+        if (gBoard[elCell[1]][elCell[2]].isMine) gCounter++
         var elCellContent = document.querySelector(`.cell-${elCell[1]}-${elCell[2]}`)
-        console.log(elCellContent)
+        // console.log(elCellContent)
         elCellContent.innerText = MARKED
+        // checkWin(gBoard)
+        // if (checkWin(gBoard)) {
+        //     renderWin ()
+        // }
     }
 });
 
@@ -333,8 +339,42 @@ function checkGameOver() {
 
 }
 
-function checkWin() {
-    return (gGame.coveredCount === gLevel.MINES)
+function checkWin(board) {
+    console.log(gCounter)
+    for (var i = 0; i < board.length; i++) {
+        for (var j = 0; j < board[0].length; j++) {
+            if (board[i][j].isMarked && board[i][j].isMine) {
+                console.log(gCounter)
+                // gCounter++
+                console.log(gCounter)
+                if (gCounter === gLevel.MINES) return true
+
+            }
+        }
+    } return false
+    // return (gGame.coveredCount === gLevel.MINES)
+}
+
+
+function renderWin(board) {
+    gGame.isOn = false
+    resetTimer()
+    var elTimer = document.querySelector('.timer span')
+    elTimer.innerText = gPausedTime
+    var elEmoji = document.querySelector('button.reset')
+    elEmoji.innerText = WIN
+    for (var i = 0; i < board.length; i++) {
+        for (var j = 0; j < board[0].length; j++) {
+            
+            if (board[i][j].isCovered === true) {
+                console.log(board[i][j].isCovered)
+                board[i][j].isCovered = false
+                document.querySelector(`.cell-${i}-${j}`).classList.remove('covered')
+            }
+
+        }
+    }
+
 }
 
 
@@ -385,6 +425,7 @@ function updateLives(lives) {
         elLives.innerHTML = '<span>' + gPlayer.lives + '</span>'
     }
 }
+
 
 
 
