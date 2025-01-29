@@ -11,12 +11,13 @@
 
 </head>
 
-<body onload="onInit()" onclick="placeMines(gBoard)">
+<body onload="onInit()">
     <div class="menu">
         <h2 class="mines">Mines: <span></span></h2>
         <button class="reset" onclick="onInit()"></button>
-        <h2 class="timer"><span>000</span></h2>
+        <h2 id="timer"><span>000</span></h2>
     </div>
+    <div class="hints">💡💡💡</div>
     <div class="board-container"></div>
 
     <table class="board-container">
@@ -25,7 +26,9 @@
     <h2 class="lives">Lives: <span></span></h2>
 
     <script src="js/utils.js"></script>
-    <script src="js/main.js"></script>
+    <!-- <script src="js/main.js"></script> -->
+    <script src="js/main2.js"></script>
+    <script src="js/timer.js"></script>
 
 </body>
 

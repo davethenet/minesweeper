@@ -68,7 +68,7 @@ function getEmptyCells(board) {
 
   for (var i = 0; i < board.length; i++) {
     for (var j = 0; j < board[0].length; j++) {
-      if (board[i][j].isMine === false) {
+      if (!board[i][j].isMine && !board[i][j].isMarked) {
         emptyCells.push({ i, j })
       }
     }
@@ -79,33 +79,20 @@ function getEmptyCells(board) {
 
 
 
-function startTimer() {
-  gStartTime = Date.now()
-  gInterval = setInterval(updateTime, 1)
+
+
+
+function renderCell(location, value) {
+  // Select the elCell and set the value
+  var elCell = document.querySelector(`.cell-${location.i}-${location.j}`)
+  elCell.innerHTML = `<span> ${value} </span>`
 }
 
 
-function updateTime() {
-  var currTime = Date.now()
-  var elapsedTime = currTime - gStartTime
 
 
-  var min = Math.floor(elapsedTime / (1000 * 60) % 60)
-  var sec = Math.floor(elapsedTime / 1000 % 60)
-  var milSec = Math.floor(elapsedTime % 1000)
-
-
-  var elTime = document.querySelector('.timer span')
-  elTime.innerHTML = `${sec}`
-  gGame.secsPassed = sec
-}
-
-function resetTimer() {
-  gPausedTime = gGame.secsPassed
-  clearInterval(gInterval)
-  var elTimer = document.querySelector('.timer span')
-  elTimer.innerHTML = '000'
-  gStartTime = 0
-  gInterval = null
-  gGame.secsPassed = 0
+// Returns the class name for a specific cell
+function getClassName(location) {
+  const cellClass = 'cell-' + location.i + '-' + location.j
+  return cellClass
 }

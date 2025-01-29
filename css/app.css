@@ -49,3 +49,13 @@ button.reset {
 footer {
     margin-top: 100px;
 }
+
+.hints {
+    cursor: pointer;
+    letter-spacing: 30px;
+
+}
+
+.hints:hover{
+    background-color: aquamarine;
+}
