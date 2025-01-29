@@ -164,19 +164,24 @@ function onCellClicked(elCell, i, j) {
     if (gBoard[i][j].isMarked) return 
 
     startTimer()
+
     if (!gGame.isOn && gGame.MarkedCount === 0) {  //FIRST CLICK PLACING MINES
         gGame.isOn = !gGame.isOn
         placeRandomMines(gBoard)
         setMinesNegsCount(gBoard)
         renderCells(gBoard)
+        // gGame.coveredCount--
     }
 
-    if (gBoard[i][j].isCovered && !gBoard[i][j].isMarked) gGame.coveredCount--
+    if (gBoard[i][j].isCovered && !gBoard[i][j].isMarked) {
     gBoard[i][j].isCovered = false //Modal  IF NOT FIRST CLICK
     document.querySelector(`.cell-${i}-${j}`).classList.remove('covered') //DOM
+    // gGame.coveredCount--
+}
+    
 
     if (gBoard[i][j].isMine) {  //WHEN CLICKING ON CELL WITH MINE
-        console.log('Mine!')
+        // console.log('Mine!')
 
         gPlayer.lives-- //MODAL REMOVE LIVES
         updateLives(gPlayer.lives) // DOM
@@ -193,21 +198,13 @@ function onCellClicked(elCell, i, j) {
             setTimeout(() => {
                 gBoard[i][j].isCovered = true //MODAL - IF NOT GAME OVER RE-COVER MINE
                 document.querySelector(`.cell-${i}-${j}`).classList.add('covered') //DOM 
-            }, 2000);
+            }, 500);
 
         }
 
-
-
-        // if (!gPlayer.lives) {
-        //     if (isGameOver()) {  //CHECK IF GAME OVER
-        //         emojiButton()  // IF YES, CHANGE EMOJI
-        //         exposeAllMines(gBoard) // EXPOSE ALL MINES
-        //     }
-        // }
-        // console.log(gPlayer.lives)
     }
-
+    expandUncoveredBoard(i, j, gBoard)
+    countCovered(gBoard)
     if (isVictory()) {
         emojiButton()
         stopTimer()
@@ -268,8 +265,22 @@ function onCellMarked(elCell, prevElCell) {
 }
 
 
-function expandUncoveredBoard() {
+function expandUncoveredBoard(cellI, cellJ, board) {
+    console.log('expandUncoveredBoard')
+    if (board[cellI][cellJ].isMine) return
 
+    for (var i = cellI - 1; i <= cellI + 1; i++) {
+        if (i < 0 || i >= board.length) continue
+        for (var j = cellJ - 1; j <= cellJ + 1; j++) {
+            if (i === cellI && j === cellJ) continue
+            if (j < 0 || j >= board[i].length) continue
+            if (!board[i][j].isMine) {
+                board[i][j].isCovered = false //MODAL
+                document.querySelector(`.cell-${i}-${j}`).classList.remove('covered') //DOM
+                // gGame.coveredCount--
+            }
+        }
+    }
 }
 
 
@@ -315,12 +326,16 @@ function exposeAllMines(board) {
                 board[i][j].isCovered = false //MODAL
                 document.querySelector(`.cell-${i}-${j}`).classList.remove('covered') //DOM
             }
+
+            if (!board[i][j].isMine && board[i][j].isMarked){
+                document.querySelector(`.cell-${i}-${j}`).classList.add('incorrect-mark') //DOM
+            }
         }
     }
 }
 
 function isVictory() {
-    return (gPlayer.hits === gLevel.MINES && gGame.coveredCount === 0) ? true : false;
+    return (gPlayer.hits === gLevel.MINES && (gGame.coveredCount + gLevel.MINES === gLevel.SIZE)) ? true : false;
 }   
 
 function renderMineCount(){
@@ -334,4 +349,16 @@ function renderMineCount(){
 
 function explode(location, value){
     renderCell(location, value)
+}
+
+function countCovered(board){
+    gGame.coveredCount = gLevel.SIZE ** 2
+    for (var i = 0 ; i < board.length ; i++){
+        for (var j = 0 ; j < board[0].length; j++){
+            if (!board[i][j].isCovered){
+                gGame.coveredCount--
+            }
+        }
+    }
+    console.log('gGame.coveredCount:', gGame.coveredCount)
 }

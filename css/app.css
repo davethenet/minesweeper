@@ -59,3 +59,7 @@ footer {
 .hints:hover{
     background-color: aquamarine;
 }
+
+.incorrect-mark{
+    background-color: lightcoral;
+}
