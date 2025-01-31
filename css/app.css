@@ -63,3 +63,7 @@ footer {
 .incorrect-mark{
     background-color: lightcoral;
 }
+
+.safe{
+    background-color: lightgreen;
+}

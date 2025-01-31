@@ -36,6 +36,7 @@ var gRecords = getRecords()
 
 function onInit(size) {
     gLevel.SIZE = size
+    gSafe = 0
     resetTimer()
     renderRecords()
     gGame.isOn = false
@@ -48,8 +49,10 @@ function onInit(size) {
     // gBoard[0][1].isMine = true
     renderBoard(gBoard)
     renderMineCount()
-    
+
 }
+
+var gSafe = 0
 
 function placeRandomMines(board) {
     for (var i = 0; i < gLevel.MINES; i++) {
@@ -163,15 +166,17 @@ function onCellClicked(elCell, i, j) {
 
     startTimer()
 
-    if (!gGame.isOn && gGame.MarkedCount === 0) {  //FIRST CLICK PLACING MINES
+    if (!gGame.isOn && gGame.MarkedCount === 0 && gGame.coveredCount === gLevel.SIZE**2) {  //FIRST CLICK PLACING MINES
         gGame.isOn = !gGame.isOn
         placeRandomMines(gBoard)
         setMinesNegsCount(gBoard)
         renderCells(gBoard)
+        gBoard[i][j].isCovered = false
+        document.querySelector(`.cell-${i}-${j}`).classList.remove('covered') //DOM
         // gGame.coveredCount--
     }
 
-    if (gBoard[i][j].isCovered && !gBoard[i][j].isMarked) {
+   else  if (gBoard[i][j].isCovered && !gBoard[i][j].isMarked) {
         gBoard[i][j].isCovered = false //Modal  IF NOT FIRST CLICK
         document.querySelector(`.cell-${i}-${j}`).classList.remove('covered') //DOM
         // gGame.coveredCount--
@@ -209,7 +214,7 @@ function onCellClicked(elCell, i, j) {
         saveRecord(gLevel.SIZE, count)
         renderRecords()
         gGame.isOn = false
-        
+
     }
 
 }
@@ -377,19 +382,48 @@ function renderRecords() {
 
     for (var i = 0; i < 3; i++) {
         const elRecord = document.querySelector(`.level-${i} span`)
-        console.log(elRecord)
-        console.log('elRecord')
+        // console.log(elRecord)
+        // console.log('elRecord')
         elRecord.innerText = gRecords[i]
     }
-   
+
 }
 
 function saveRecord(boardSize, score) {
-    console.log('boardSize:', boardSize)
-    console.log('score:', score)
+    // console.log('boardSize:', boardSize)
+    // console.log('score:', score)
     var record = +localStorage.getItem(boardSize);
-    console.log('record:', record)
+    // console.log('record:', record)
     if (score < record) localStorage.setItem(boardSize, score);
-    console.log(localStorage.getItem(boardSize))
+    // console.log(localStorage.getItem(boardSize))
     renderRecords()
+}
+
+function markSafe() {
+    if (gSafe === 3) return
+    gSafe++
+    var safe = []
+    var randLocationJ = 0
+    var randLocationI = 0
+    for (var i = 0; i < gBoard.length; i++) {
+        for (var j = 0; j < gBoard[0].length; j++) {
+            if (gBoard[i][j].isMine) continue
+            if (!gBoard[i][j].isCovered) continue
+            if (gBoard[i][j].isMarked) continue
+            safe.push(gBoard[i][j])
+        }
+    console.log('safe:', safe)
+        
+    }
+    randLocationI = getRandomInt(0, gBoard.length-1)
+    randLocationJ = getRandomInt(0, gBoard[0].length-1)
+
+    console.log('randLocationJ:', randLocationJ)
+    console.log('randLocationI:', randLocationI)
+    
+    document.querySelector(`.cell-${randLocationI}-${randLocationJ}`).classList.add('safe')
+    
+    setTimeout(() => {
+        document.querySelector(`.cell-${randLocationI}-${randLocationJ}`).classList.remove('safe') //DOM
+      }, 1500);
 }
