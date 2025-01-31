@@ -32,10 +32,10 @@ var gPlayer = {
 
 var gCounter
 
-
 var gRecords = getRecords()
 
-function onInit() {
+function onInit(size) {
+    gLevel.SIZE = size
     resetTimer()
     renderRecords()
     gGame.isOn = false
@@ -43,7 +43,7 @@ function onInit() {
     updateLives(gLevel.LIVES)
     gPlayer.hits = 0
     emojiButton()
-    gBoard = buildBoard(4)
+    gBoard = buildBoard(size)
     // gBoard[0][0].isMine = true
     // gBoard[0][1].isMine = true
     renderBoard(gBoard)
@@ -208,6 +208,8 @@ function onCellClicked(elCell, i, j) {
         stopTimer()
         saveRecord(gLevel.SIZE, count)
         renderRecords()
+        gGame.isOn = false
+        
     }
 
 }
@@ -220,7 +222,7 @@ function isGameOver() {
 function onCellMarked(elCell, prevElCell) {
     if (!gGame.isOn && (isVictory() || isGameOver())) return
     if (gGame.isGameOver) return
-    if (gGame.MarkedCount >= gLevel.MINES) return
+    // if (gGame.MarkedCount > gLevel.MINES) return
     if (!gBoard[elCell[1]][elCell[2]].isCovered) return
 
     if (!gBoard[elCell[1]][elCell[2]].isMarked) {
@@ -249,7 +251,7 @@ function onCellMarked(elCell, prevElCell) {
         gBoard[elCell[1]][elCell[2]].isMarked = false //MODAL
         gGame.MarkedCount--
         var elCellContent = document.querySelector(`.cell-${elCell[1]}-${elCell[2]}`)
-        console.log('elCellContent:', elCellContent)
+        // console.log('elCellContent:', elCellContent)
         if (gBoard[elCell[1]][elCell[2]].isMine) {
             elCellContent.innerHTML = '<span>' + MINE + '</span>'
         } else {
@@ -299,7 +301,7 @@ document.addEventListener('contextmenu', function (event) {
 
     var elCell = event.target.classList[1].split('-')
     var prevElCell = gBoard[elCell[1]][elCell[2]].isMine
-    console.log(elCell)
+    // console.log(elCell)
     onCellMarked(elCell, prevElCell)
 
 });
@@ -376,6 +378,7 @@ function renderRecords() {
     for (var i = 0; i < 3; i++) {
         const elRecord = document.querySelector(`.level-${i} span`)
         console.log(elRecord)
+        console.log('elRecord')
         elRecord.innerText = gRecords[i]
     }
    
@@ -388,4 +391,5 @@ function saveRecord(boardSize, score) {
     console.log('record:', record)
     if (score < record) localStorage.setItem(boardSize, score);
     console.log(localStorage.getItem(boardSize))
+    renderRecords()
 }

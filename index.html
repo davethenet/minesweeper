@@ -12,13 +12,19 @@
 
 </head>
 
-<body onload="onInit()">
+<body onload="onInit(gLevel.SIZE=4)">
     <div class="menu">
         <h2 class="mines">Mines: <span></span></h2>
-        <button class="reset" onclick="onInit()"></button>
+        <button class="reset" onclick="onInit(gLevel.SIZE)"></button>
         <h2 id="timer"><span>000</span></h2>
     </div>
     <div class="board-container"></div>
+
+    <div class="record-container">
+        <button class="level-select-0" onclick="onInit(4)" >Beginner</button>
+        <button class="level-select-1" onclick="onInit(8)">Intermediate</button>
+        <button class="level-select-2" onclick="onInit(12)">Expert</button>
+    </div>
 
     <table class="board-container">
         <tbody></tbody>
