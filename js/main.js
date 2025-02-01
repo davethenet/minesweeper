@@ -274,6 +274,8 @@ function onCellMarked(elCell, prevElCell) {
 
 function expandUncoveredBoard(cellI, cellJ, board) {
     console.log('expandUncoveredBoard')
+    
+    
     if (board[cellI][cellJ].isMine) return
 
     for (var i = cellI - 1; i <= cellI + 1; i++) {
@@ -281,6 +283,7 @@ function expandUncoveredBoard(cellI, cellJ, board) {
         for (var j = cellJ - 1; j <= cellJ + 1; j++) {
             if (i === cellI && j === cellJ) continue
             if (j < 0 || j >= board[i].length) continue
+            if (board[i][j].isMarked) continue
             if (!board[i][j].isMine) {
                 board[i][j].isCovered = false //MODAL
                 document.querySelector(`.cell-${i}-${j}`).classList.remove('covered') //DOM
@@ -412,6 +415,8 @@ function markSafe() {
             safe.push({i,j})
         }
     }
+
+    if (!safe) return
     var randLocationIdx = safe[getRandomInt(0, safe.length)]
 
     document.querySelector(`.cell-${randLocationIdx.i}-${randLocationIdx.j}`).classList.add('safe')
