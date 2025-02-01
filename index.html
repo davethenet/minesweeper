@@ -21,18 +21,24 @@
     <div class="board-container"></div>
 
     <div class="record-container">
-        <button class="level-select-0" onclick="onInit(4)" >Beginner</button>
+        <button class="level-select-0" onclick="onInit(4)">Beginner</button>
         <button class="level-select-1" onclick="onInit(8)">Intermediate</button>
         <button class="level-select-2" onclick="onInit(12)">Expert</button>
     </div>
+
+    <h2 class="lives">Lives: <span></span></h2>
 
     <table class="board-container">
         <tbody></tbody>
     </table>
 
-<button class="safe-click" onclick="markSafe()">Safe Click</button>
+    <button class="hint hint-0" onclick="hint(event)">💡</button>
+    <button class="hint hint-1" onclick="hint(event)">💡</button>
+    <button class="hint hint-2" onclick="hint(event)">💡</button>
+    <br />
+    <button class="safe-click" onclick="markSafe()">Safe Click</button>
 
-    <h2 class="lives">Lives: <span></span></h2>
+    
 
     <div class="record-container">
         <div class="level-0">Beginner: <span></span></div>

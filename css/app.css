@@ -43,6 +43,7 @@ td {
 
 button.reset {
     background-color: aliceblue;
+    cursor: pointer;
 }
 
 
@@ -66,4 +67,25 @@ footer {
 
 .safe{
     background-color: lightgreen;
+}
+
+button.safe-click{
+    background-color: #02A9E9;
+    /* height: 50px; */
+    cursor: pointer;
+    color: aliceblue;
+    padding: 30px;
+    border:  white 4px solid;
+    border-radius: 20px;
+    margin-bottom: 20px;
+}
+
+.hint{
+    margin-bottom: 10px;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.clicked-hint{
+    background-color: yellow;
 }

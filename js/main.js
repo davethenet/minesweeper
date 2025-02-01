@@ -31,12 +31,14 @@ var gPlayer = {
 }
 
 var gCounter
+var gHint = false
 
 var gRecords = getRecords()
 
 function onInit(size) {
     gLevel.SIZE = size
     gSafe = 0
+    resetHint()
     resetTimer()
     renderRecords()
     gGame.isOn = false
@@ -166,7 +168,17 @@ function onCellClicked(elCell, i, j) {
 
     startTimer()
 
-    if (!gGame.isOn && gGame.MarkedCount === 0 && gGame.coveredCount === gLevel.SIZE**2) {  //FIRST CLICK PLACING MINES
+  
+    if (gHint) {
+        setTimeout(() => {
+            gHint = false
+            unExpandUncoveredBoard(i, j, gBoard)
+        }, 1500);
+
+        console.log('hint!')
+    }
+
+    if (!gGame.isOn && gGame.MarkedCount === 0 && gGame.coveredCount === gLevel.SIZE ** 2) {  //FIRST CLICK PLACING MINES
         gGame.isOn = !gGame.isOn
         placeRandomMines(gBoard)
         setMinesNegsCount(gBoard)
@@ -176,7 +188,7 @@ function onCellClicked(elCell, i, j) {
         // gGame.coveredCount--
     }
 
-   else  if (gBoard[i][j].isCovered && !gBoard[i][j].isMarked) {
+    else if (gBoard[i][j].isCovered && !gBoard[i][j].isMarked) {
         gBoard[i][j].isCovered = false //Modal  IF NOT FIRST CLICK
         document.querySelector(`.cell-${i}-${j}`).classList.remove('covered') //DOM
         // gGame.coveredCount--
@@ -206,6 +218,7 @@ function onCellClicked(elCell, i, j) {
         }
 
     }
+    
     expandUncoveredBoard(i, j, gBoard)
     countCovered(gBoard)
     if (isVictory()) {
@@ -274,8 +287,8 @@ function onCellMarked(elCell, prevElCell) {
 
 function expandUncoveredBoard(cellI, cellJ, board) {
     console.log('expandUncoveredBoard')
-    
-    
+
+
     if (board[cellI][cellJ].isMine) return
 
     for (var i = cellI - 1; i <= cellI + 1; i++) {
@@ -287,6 +300,27 @@ function expandUncoveredBoard(cellI, cellJ, board) {
             if (!board[i][j].isMine) {
                 board[i][j].isCovered = false //MODAL
                 document.querySelector(`.cell-${i}-${j}`).classList.remove('covered') //DOM
+                // gGame.coveredCount--
+            }
+        }
+    }
+}
+
+
+function unExpandUncoveredBoard(cellI, cellJ, board) {
+
+
+    // if (board[cellI][cellJ].isMine) return
+
+    for (var i = cellI - 1; i <= cellI + 1; i++) {
+        if (i < 0 || i >= board.length) continue
+        for (var j = cellJ - 1; j <= cellJ + 1; j++) {
+            // if (i === cellI && j === cellJ) continue
+            if (j < 0 || j >= board[i].length) continue
+            if (board[i][j].isMarked) continue
+            if (!board[i][j].isMine) {
+                board[i][j].isCovered = true //MODAL
+                document.querySelector(`.cell-${i}-${j}`).classList.add('covered') //DOM
                 // gGame.coveredCount--
             }
         }
@@ -393,11 +427,17 @@ function renderRecords() {
 }
 
 function saveRecord(boardSize, score) {
+
     // console.log('boardSize:', boardSize)
     // console.log('score:', score)
     var record = +localStorage.getItem(boardSize);
     // console.log('record:', record)
-    if (score < record) localStorage.setItem(boardSize, score);
+    console.log('record:', record)
+    if (record === undefined || record === 0) {
+        record = 100
+        localStorage.setItem(boardSize, score);
+    }
+    else if (score < record) localStorage.setItem(boardSize, score);
     // console.log(localStorage.getItem(boardSize))
     renderRecords()
 }
@@ -412,7 +452,7 @@ function markSafe() {
             if (gBoard[i][j].isMine) continue
             if (!gBoard[i][j].isCovered) continue
             if (gBoard[i][j].isMarked) continue
-            safe.push({i,j})
+            safe.push({ i, j })
         }
     }
 
@@ -420,8 +460,25 @@ function markSafe() {
     var randLocationIdx = safe[getRandomInt(0, safe.length)]
 
     document.querySelector(`.cell-${randLocationIdx.i}-${randLocationIdx.j}`).classList.add('safe')
-    
+
     setTimeout(() => {
         document.querySelector(`.cell-${randLocationIdx.i}-${randLocationIdx.j}`).classList.remove('safe') //DOM
-      }, 1500);
+    }, 1500);
+}
+
+
+function hint(ev) {
+    gHint = true
+    var eliHint = ev.srcElement.className.split(' ')
+    console.log('eliHint:', eliHint) 
+    document.querySelector(`.${eliHint[1]}`).classList.add('clicked-hint')
+}
+
+function resetHint() {
+    // gHint = false
+    // var eliHint = ev.srcElement.className.split(' ')
+
+    // // var elHint = document.querySelectorAll('.hint')
+    // // elHint[0].classList.remove('clicked-hint')
+    // console.log(elHint[0])
 }
