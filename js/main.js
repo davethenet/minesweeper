@@ -403,27 +403,20 @@ function markSafe() {
     if (gSafe === 3) return
     gSafe++
     var safe = []
-    var randLocationJ = 0
-    var randLocationI = 0
+
     for (var i = 0; i < gBoard.length; i++) {
         for (var j = 0; j < gBoard[0].length; j++) {
             if (gBoard[i][j].isMine) continue
             if (!gBoard[i][j].isCovered) continue
             if (gBoard[i][j].isMarked) continue
-            safe.push(gBoard[i][j])
+            safe.push({i,j})
         }
-    console.log('safe:', safe)
-        
     }
-    randLocationI = getRandomInt(0, gBoard.length-1)
-    randLocationJ = getRandomInt(0, gBoard[0].length-1)
+    var randLocationIdx = safe[getRandomInt(0, safe.length)]
 
-    console.log('randLocationJ:', randLocationJ)
-    console.log('randLocationI:', randLocationI)
-    
-    document.querySelector(`.cell-${randLocationI}-${randLocationJ}`).classList.add('safe')
+    document.querySelector(`.cell-${randLocationIdx.i}-${randLocationIdx.j}`).classList.add('safe')
     
     setTimeout(() => {
-        document.querySelector(`.cell-${randLocationI}-${randLocationJ}`).classList.remove('safe') //DOM
+        document.querySelector(`.cell-${randLocationIdx.i}-${randLocationIdx.j}`).classList.remove('safe') //DOM
       }, 1500);
 }
